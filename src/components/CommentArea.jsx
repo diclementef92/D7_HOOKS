@@ -1,19 +1,21 @@
-import { Component } from "react";
+import { Component, useEffect, useState } from "react";
 import { Card, Spinner } from "react-bootstrap";
 import CommentsList from "./CommentsList";
 import AddComment from "./AddComment";
 
-class CommentArea extends Component {
-  state = {
-    isLoading: false,
-    comments: [],
-  };
+const CommentArea = (props) => {
+  // state = {
+  //   isLoading: true,
+  //   comments: [],
+  // };
 
-  async retriveComments() {
+  const [isLoading, setIsLoading] = useState(true);
+  const [comments, setComments] = useState([]);
+
+  const retriveComments = async () => {
     try {
       let res = await fetch(
-        "https://striveschool-api.herokuapp.com/api/comments/" +
-          this.props.bookAsin,
+        "https://striveschool-api.herokuapp.com/api/comments/" + props.bookAsin,
         {
           method: "GET",
           headers: {
@@ -25,48 +27,50 @@ class CommentArea extends Component {
       if (res.ok) {
         let body = await res.json();
         console.log(body);
-        this.setState({ comments: body, isLoading: false });
+        // this.setState({ comments: body, isLoading: false });
+        setIsLoading(false);
+        setComments(body);
       } else {
         console.log(res.status, res);
       }
     } catch (e) {
       console.log("Error in fetch:", e);
-      this.setState({
-        isLoading: false,
-      });
+      setIsLoading(false);
     }
-  }
+  };
 
-  componentDidUpdate(prevProps) {
-    console.log("update!:", prevProps);
-    if (prevProps.bookAsin !== this.props.bookAsin) {
-      this.retriveComments();
-    }
-  }
+  // const componentDidUpdate = (prevProps) => {
+  //   console.log("update!:", prevProps);
+  //   if (prevProps.bookAsin !== this.props.bookAsin) {
+  //     retriveComments();
+  //   }
+  // };
 
-  render() {
-    return (
-      <>
-        <Card.Header className="p-0">
-          <h1>👈Seleziona un libro</h1>
-          COMMENTI
-        </Card.Header>
-        <Card>
-          {this.state.isLoading && (
-            <div className="ml-2">
-              <Spinner animation="border" variant="success" />
-            </div>
-          )}
-          {!this.state.isLoading && this.state.comments.length > 0 ? (
-            <CommentsList comments={this.state.comments} />
-          ) : (
-            <p>Ancora nessun commento</p>
-          )}
-          <AddComment bookAsin={this.props.bookAsin} />
-        </Card>
-      </>
-    );
-  }
-}
+  useEffect(() => {
+    retriveComments();
+  }, [props.bookAsin]);
+
+  return (
+    <>
+      <Card.Header className="p-0">
+        <h1>👈Seleziona un libro</h1>
+        COMMENTI
+      </Card.Header>
+      <Card>
+        {isLoading && (
+          <div className="ml-2">
+            <Spinner animation="border" variant="success" />
+          </div>
+        )}
+        {!isLoading && comments.length > 0 ? (
+          <CommentsList comments={comments} />
+        ) : (
+          <p>Ancora nessun commento</p>
+        )}
+        <AddComment bookAsin={props.bookAsin} />
+      </Card>
+    </>
+  );
+};
 
 export default CommentArea;

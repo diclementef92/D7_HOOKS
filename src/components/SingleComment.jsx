@@ -11,7 +11,7 @@ class SingleComment extends Component {
           {this.props.comment.author} ha scritto:
         </span>
         <p className="commentText"> {this.props.comment.comment}</p>
-        {/* <p> {this.props.comment.updatedAt}</p> */}
+        <span>Voto: {this.props.comment.rate}</span>
       </ListGroup.Item>
     );
   }
